@@ -1,11 +1,10 @@
 <template>
-    <div>信息列表</div>
+  <div>信息列表</div>
 </template>
 <script>
 export default {
-    name: "infoIndex"
-}
+  name: "infoIndex"
+};
 </script>
 <style lang="scss" scoped>
-
 </style>

@@ -1,12 +1,12 @@
 <template>
-    <div>
-        控制台
-    </div>
+  <div>
+    控制台
+  </div>
 </template>
 <script>
 export default {
-    name: "console"
-}
+  name: "console"
+};
 </script>
 <style lang="scss" scoped>
 </style>

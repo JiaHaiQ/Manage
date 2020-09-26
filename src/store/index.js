@@ -1,19 +1,13 @@
 import Vue from "vue";
 import Vuex from "vuex";
-
 Vue.use(Vuex);
 
+import app from './modules/app';
+import login from './modules/login';
+
 export default new Vuex.Store({
-  state: {
-    isCollapse: JSON.parse(sessionStorage.getItem('isCollapse')) || false,
-  },
-  getters: {},
-  mutations: {
-    SET_COLLAPSE(state){
-      state.isCollapse = !state.isCollapse;
-      sessionStorage.setItem('isCollapse', JSON.stringify(state.isCollapse));
-    }
-  },
-  actions: {},
-  modules: {}
+  modules: {
+    app,
+    login
+  }
 });

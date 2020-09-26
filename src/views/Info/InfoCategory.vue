@@ -1,10 +1,10 @@
 <template>
-    <div>信息分类</div>
+  <div>信息分类</div>
 </template>
 <script>
 export default {
-    name: "infoCategory"
-}
+  name: "infoCategory"
+};
 </script>
 <style lang="scss" scoped>
 </style>

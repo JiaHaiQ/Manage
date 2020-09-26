@@ -10,11 +10,11 @@ const service = axios.create({
 
 // 添加请求拦截器
 service.interceptors.request.use(
-  function(config) {
+  function (config) {
     // 在发送请求之前做些什么
     return config;
   },
-  function(error) {
+  function (error) {
     // 对请求错误做些什么
     return Promise.reject(error);
   }
@@ -24,7 +24,7 @@ service.interceptors.request.use(
  * 请求接口后，返回数据进行拦截（响应拦截器）
  */
 service.interceptors.response.use(
-  function(response) {
+  function (response) {
     // 对响应数据做些什么
     let data = response.data;
     if (data.resCode !== 0) {
@@ -35,7 +35,7 @@ service.interceptors.response.use(
       // return Promise.resolve;
     }
   },
-  function(error) {
+  function (error) {
     // 对响应错误做些什么
     return Promise.reject(error);
   }

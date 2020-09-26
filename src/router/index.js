@@ -20,7 +20,7 @@ export default new Router({
       meta: {
         name: "登录"
       },
-      component: ()=>import("views/Login/index.vue")
+      component: () => import("views/Login/index.vue")
     },
     {
       path: "/console",
@@ -37,7 +37,7 @@ export default new Router({
         meta: {
           name: "首页"
         },
-        component: ()=>import("views/Console/index.vue"),
+        component: () => import("views/Console/index.vue"),
       }]
     },
     {
@@ -55,7 +55,7 @@ export default new Router({
           meta: {
             name: "信息列表"
           },
-          component: ()=>import("views/Info/index.vue"),
+          component: () => import("views/Info/index.vue"),
         },
         {
           path: "/infoCategory",
@@ -63,9 +63,9 @@ export default new Router({
           meta: {
             name: "信息分类"
           },
-          component: ()=>import("views/Info/InfoCategory.vue"),
+          component: () => import("views/Info/InfoCategory.vue"),
         }
-    ]
+      ]
     },
     {
       path: "/user",
@@ -82,7 +82,7 @@ export default new Router({
           meta: {
             name: "用户列表"
           },
-          component: ()=>import("views/User/index.vue"),
+          component: () => import("views/User/index.vue"),
         },
         {
           path: "/userCategory",
@@ -90,10 +90,10 @@ export default new Router({
           meta: {
             name: "用户分类"
           },
-          component: ()=>import("views/User/UserCategory.vue"),
+          component: () => import("views/User/UserCategory.vue"),
         }
-    ]
+      ]
     },
-    
+
   ]
 });
