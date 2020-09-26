@@ -73,11 +73,11 @@ module.exports = {
     proxy: null, // 设置代理
     // eslint-disable-next-line no-dupe-keys
     proxy: {
-      "/devApi": {
+      [process.env.VUE_APP_API] : {
         target: "http://www.web-jshtml.cn/productapi", //API服务器的地址
         changeOrigin: true,
         pathRewrite: {
-          "^/devApi": ""
+          [`^${process.env.VUE_APP_API}`]:""
         }
       }
     },

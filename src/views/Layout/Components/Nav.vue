@@ -53,6 +53,7 @@ export default {
   img { 
     margin: 28px auto 25px;
     width: 92px;
+    @include webkit(transition, $menuTransition);
   }
 }
 #nav-wrap {
@@ -62,7 +63,7 @@ export default {
     width: $navMenu;
     height: 100vh;
     background-color: #344a5f;
-    @include webkit(transition , all .3s ease 0s);
+    @include webkit(transition , $menuTransition);
     svg {
         font-size: 20px;
         margin-right: 10px;

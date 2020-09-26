@@ -32,7 +32,7 @@ export default {}
     padding-left: $navMenu + 30;
     padding-right: 30px;
     @include webkit(box-sizing,border-box);
-    @include webkit(transition, all .3s ease 0s);
+    @include webkit(transition, $menuTransition);
 }
 .content {
     width: 100%;

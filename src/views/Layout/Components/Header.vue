@@ -45,8 +45,8 @@ export default {
     height: 75px;
     line-height: 75px;
     background-color: #fff;
-     @include webkit(box-shadow, 0 3px 16px 0 rgba(0, 0, 0, .1));
-    @include webkit(transition, all .3s ease 0s);
+    @include webkit(box-shadow, 0 3px 16px 0 rgba(0, 0, 0, .1));
+    @include webkit(transition, $menuTransition);
 }
 .heaber-icon {
     padding: 0 32px;
