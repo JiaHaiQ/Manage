@@ -1,11 +1,13 @@
 import axios from "axios";
 import { Message } from "element-ui";
 
-//创建axios，赋给变量
-const BASEURL = process.env.NODE_ENV === 'production' ? process.env.VUE_APP_API : process.env.VUE_APP_API
+const BASEURL =
+  process.env.NODE_ENV === "production"
+    ? process.env.VUE_APP_API
+    : process.env.VUE_APP_API;
 const service = axios.create({
   baseURL: BASEURL,
-  timeout: 15000 //超时
+  timeout: 15000
 });
 
 // 添加请求拦截器
@@ -42,8 +44,3 @@ service.interceptors.response.use(
 );
 
 export default service;
-
-/**
- * 使用export default时，不能同时存在多个default，
- * 文件import引入时不需要花括号
- */

@@ -2,7 +2,7 @@ import Vue from "vue";
 import Router from "vue-router";
 Vue.use(Router);
 
-import Layout from 'views/Layout';
+import Layout from "views/Layout";
 export default new Router({
   routes: [
     {
@@ -31,14 +31,16 @@ export default new Router({
         icon: "console"
       },
       component: Layout,
-      children: [{
-        path: "/index",
-        name: "Index",
-        meta: {
-          name: "首页"
-        },
-        component: () => import("views/Console/index.vue"),
-      }]
+      children: [
+        {
+          path: "/index",
+          name: "Index",
+          meta: {
+            name: "首页"
+          },
+          component: () => import("views/Console/index.vue")
+        }
+      ]
     },
     {
       path: "/info",
@@ -55,7 +57,7 @@ export default new Router({
           meta: {
             name: "信息列表"
           },
-          component: () => import("views/Info/index.vue"),
+          component: () => import("views/Info/index.vue")
         },
         {
           path: "/infoCategory",
@@ -63,7 +65,7 @@ export default new Router({
           meta: {
             name: "信息分类"
           },
-          component: () => import("views/Info/InfoCategory.vue"),
+          component: () => import("views/Info/InfoCategory.vue")
         }
       ]
     },
@@ -82,7 +84,7 @@ export default new Router({
           meta: {
             name: "用户列表"
           },
-          component: () => import("views/User/index.vue"),
+          component: () => import("views/User/index.vue")
         },
         {
           path: "/userCategory",
@@ -90,10 +92,9 @@ export default new Router({
           meta: {
             name: "用户分类"
           },
-          component: () => import("views/User/UserCategory.vue"),
+          component: () => import("views/User/UserCategory.vue")
         }
       ]
-    },
-
+    }
   ]
 });

@@ -12,22 +12,22 @@ module.exports = {
    **/
   chainWebpack: config => {
     // svg loader
-    const svgRule = config.module.rule('svg') // 找到svg-loader
-    svgRule.uses.clear() // 清除已有的loader, 如果不这样做会添加在此loader之后
+    const svgRule = config.module.rule("svg"); // 找到svg-loader
+    svgRule.uses.clear(); // 清除已有的loader, 如果不这样做会添加在此loader之后
     svgRule // 添加svg新的loader处理
-      .use('svg-sprite-loader')
-      .loader('svg-sprite-loader')
+      .use("svg-sprite-loader")
+      .loader("svg-sprite-loader")
       .options({
-        symbolId: 'icon-[name]',
-        include: ['./src/icons']
-      })
+        symbolId: "icon-[name]",
+        include: ["./src/icons"]
+      });
   },
   configureWebpack: config => {
     config.resolve = {
       // 配置解析别名
       extensions: [".js", ".json", ".vue"],
       alias: {
-        'vue': 'vue/dist/vue.js',
+        vue: "vue/dist/vue.js",
         "@": path.resolve(__dirname, "./src"),
         public: path.resolve(__dirname, "./public"),
         "@c": path.resolve(__dirname, "./src/components"),
@@ -47,8 +47,8 @@ module.exports = {
     // 开启 CSS source maps?
     sourceMap: false,
     // css预设器配置项
-    loaderOptions: { 
-      sass:{
+    loaderOptions: {
+      sass: {
         prependData: `@import "./src/styles/main.scss";`
       }
     },
@@ -73,11 +73,11 @@ module.exports = {
     proxy: null, // 设置代理
     // eslint-disable-next-line no-dupe-keys
     proxy: {
-      [process.env.VUE_APP_API] : {
-        target: "http://www.web-jshtml.cn/productapi", //API服务器的地址
+      [process.env.VUE_APP_API]: {
+        target: process.env.VUE_APP_BASE_URL, //API服务器的地址
         changeOrigin: true,
         pathRewrite: {
-          [`^${process.env.VUE_APP_API}`]:""
+          [`^${process.env.VUE_APP_API}`]: ""
         }
       }
     },

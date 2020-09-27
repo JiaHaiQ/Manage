@@ -15,7 +15,7 @@
   </div>
 </template>
 <script>
-import { ref, computed } from "@vue/composition-api";
+import { computed } from "@vue/composition-api";
 export default {
   name: "heaber",
   setup(props, { root }) {
@@ -23,11 +23,11 @@ export default {
     const onMenuState = () => {
       root.$store.commit("app/SET_COLLAPSE");
     };
-    const userName = ref("管理员");
     //computed
     const onMenuSvg = computed(() =>
       root.$store.state.app.isCollapse ? "menu-on" : "menu-off"
     );
+    const userName = computed(() => root.$store.state.app.username);
     return {
       onMenuState,
       userName,

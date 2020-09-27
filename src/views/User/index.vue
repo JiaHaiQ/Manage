@@ -6,5 +6,4 @@ export default {
   name: "userIndex"
 };
 </script>
-<style lang="scss" scoped>
-</style>
+<style lang="scss" scoped></style>

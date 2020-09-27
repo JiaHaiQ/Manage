@@ -254,7 +254,7 @@ export default {
         code: ruleForm.code
       };
       root.$store
-        .dispatch("login/login", requestData)
+        .dispatch("app/login", requestData)
         .then(res => {
           root.$message.success(res.data.message);
           root.$router.push({ name: "Console" });
