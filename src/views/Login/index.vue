@@ -158,9 +158,6 @@ export default {
     };
     //验证验证码
     let validateCode = (rule, value, callback) => {
-      //过滤后的数据
-      //this.ruleForm.code = stripscript(value);
-      //value = this.ruleForm.code;
       if (value === "") {
         return callback(new Error("请输入验证码"));
       } else if (validateVCode(value)) {

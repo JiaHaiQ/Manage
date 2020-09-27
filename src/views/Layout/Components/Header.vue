@@ -8,7 +8,7 @@
         <img src="../../../assets/image/userInfo.jpg" alt="" />
         {{ userName }}
       </div>
-      <div class="pull-left heaber-icon">
+      <div class="pull-left heaber-icon" @click="logout">
         <svg-icon iconClass="signOut" className="signOut" />
       </div>
     </div>
@@ -28,10 +28,22 @@ export default {
       root.$store.state.app.isCollapse ? "menu-on" : "menu-off"
     );
     const userName = computed(() => root.$store.state.app.username);
+    // 登出
+    const logout = () => {
+      root.$store.dispatch("app/logout").then(res => {
+        if (res.resCode === 0) {
+          root.$message.success("退出成功！");
+          root.$router.push({
+            name: "Login"
+          });
+        }
+      });
+    };
     return {
       onMenuState,
       userName,
-      onMenuSvg
+      onMenuSvg,
+      logout
     };
   }
 };

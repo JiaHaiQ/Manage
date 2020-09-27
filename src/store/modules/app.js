@@ -1,5 +1,5 @@
-import { Login } from "api/login";
-import { setToKen, setUserName, getUserName } from "utils/app";
+import { Login, Logout } from "api/login";
+import { setToKen, removeToKen, setUserName, getUserName, removeUserName } from "utils/app";
 
 const state = {
   isCollapse: JSON.parse(sessionStorage.getItem("isCollapse")) || false,
@@ -21,9 +21,13 @@ const mutations = {
   },
   SET_USERNAME(state, value) {
     state.username = value;
+  },
+  SET_ROLES(state, value) {
+    state.roles = value;
   }
 };
 const actions = {
+  // 登录
   login({ commit }, data) {
     return new Promise((resolve, reject) => {
       Login(data)
@@ -39,6 +43,19 @@ const actions = {
           reject(error);
         });
     });
+  },
+  // 退出
+  logout({ commit }) {
+    return new Promise((resolve, reject) => {
+      Logout().then(res => {
+        removeToKen();
+        removeUserName();
+        commit('SET_TOKEN', '');
+        commit('SET_USERNAME', '');
+        resolve(res.data);
+      })
+
+    })
   }
 };
 

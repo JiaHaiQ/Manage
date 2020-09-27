@@ -11,10 +11,6 @@ export function GetSms(data) {
 }
 
 /**
- * 获取用户角色
- */
-
-/**
  * 登录
  */
 export function Login(data) {
@@ -23,6 +19,17 @@ export function Login(data) {
     url: "/login/",
     data
   });
+}
+
+/**
+ * 退出
+ */
+export function Logout(data){
+  return service.request({
+      method: "post",
+      url: "/logout/",
+      data
+  })
 }
 
 /**
