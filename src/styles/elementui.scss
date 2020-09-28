@@ -1,4 +1,4 @@
-// 选中菜单
+/* 选中菜单 */
 .el-submenu .el-menu-item {
     font-size: 14px;
     padding-left: 50px !important;
@@ -8,14 +8,14 @@
     }
 }
 
-// 一级菜单
+/* 一级菜单 */
 .el-submenu {
     &.is-active .el-submenu__title {
         background-color: $mainColor !important;
     }
 }
 
-//菜单鼠标悬浮
+/* 菜单鼠标悬浮 */
 .close {
     .el-submenu {
         &.is-opened {
@@ -40,7 +40,7 @@
     }
 }
 
-/* table 样式*/
+/* table 样式 */
 div.el-table {
 
     td,
@@ -64,6 +64,7 @@ div.el-table {
 }
 
 .el-dialog__footer {
+    //按钮
     text-align: center !important;
     padding-bottom: 50px !important;
 
@@ -73,13 +74,13 @@ div.el-table {
     }
 }
 
-div.el-form-item {
-    margin-bottom: 22px;
-}
-
 /* from 样式 */
 .el-form {
     .el-form-item:last-child {
         margin-bottom: 0 !important;
     }
+}
+
+div.el-form-item {
+    margin-bottom: 22px;
 }
