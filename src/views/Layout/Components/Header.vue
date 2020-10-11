@@ -90,6 +90,7 @@ export default {
   }
   img {
     display: inline-block;
+    border-radius: 50%;
     margin-bottom: -16px;
     margin-right: 18px;
   }

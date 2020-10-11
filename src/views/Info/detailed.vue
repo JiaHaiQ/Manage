@@ -9,7 +9,7 @@
     element-loading-background="rgba(0, 0, 0, .5)"
   >
     <el-form-item label="信息分类：">
-      <el-select v-model="form.categoryId">
+      <el-select v-model="form.categoryId" style="width: 270px;">
         <el-option
           v-for="item in allData.category"
           :key="item.id"
@@ -19,31 +19,22 @@
       </el-select>
     </el-form-item>
 
-    <el-form-item label="新闻标题：">
-      <el-input v-model="form.title" clearable></el-input>
-    </el-form-item>
-
-    <el-form-item label="缩列图：">
-      <el-upload
-        class="avatar-uploader"
-        action="http://up-z2.qiniup.com"
-        :data="allData.uploadKey"
-        :show-file-list="false"
-        :on-success="handleAvatarSuccess"
-        :before-upload="beforeAvatarUpload"
-      >
-        <img v-if="form.imgUrl" :src="form.imgUrl" class="avatar" />
-        <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-      </el-upload>
-    </el-form-item>
-
     <el-form-item label="发布日期：">
       <el-date-picker
         type="date"
         placeholder="请选择日期"
+        style="width: 270px;"
         v-model="form.createDate"
         disabled
       ></el-date-picker>
+    </el-form-item>
+
+    <el-form-item label="缩列图片：">
+      <UploadImg :imgUrl.sync="form.imgUrl" :config="uploadImgConfig" />
+    </el-form-item>
+
+    <el-form-item label="新闻标题：">
+      <el-input v-model="form.title" clearable></el-input>
     </el-form-item>
 
     <el-form-item label="详情内容：">
@@ -65,10 +56,10 @@
   </el-form>
 </template>
 <script>
-import { ref, reactive, onMounted } from "@vue/composition-api";
+import { reactive, onMounted } from "@vue/composition-api";
 import { EdidInfo, GetList } from "api/info";
-import { QiniuToKen } from "api/commonApi";
 import { timestampToTime, filterNullVal } from "utils/commonUtils";
+import UploadImg from "@c/UploadImg";
 //富文本
 import "quill/dist/quill.core.css";
 import "quill/dist/quill.snow.css";
@@ -76,9 +67,22 @@ import "quill/dist/quill.bubble.css";
 import { quillEditor } from "vue-quill-editor";
 export default {
   name: "detailed",
-  components: { quillEditor },
+  components: { quillEditor, UploadImg },
   setup(props, { root }) {
     //data
+    // 图片上传配置
+    const {
+      VUE_APP_UPLOADIMG_URL,
+      VUE_APP_QINIU_AK,
+      VUE_APP_QINIU_SK,
+      VUE_APP_QINIU_BUCKETY
+    } = process.env;
+    const uploadImgConfig = reactive({
+      action: VUE_APP_UPLOADIMG_URL,
+      accesskey: VUE_APP_QINIU_AK,
+      secretkey: VUE_APP_QINIU_SK,
+      buckety: VUE_APP_QINIU_BUCKETY
+    });
     const allData = reactive({
       id: root.$route.params.id || root.$store.getters["infoDetailed/infoId"],
       title:
@@ -87,11 +91,7 @@ export default {
       category: [],
       editorOption: {},
       formLoading: true,
-      submitLoading: false,
-      uploadKey: {
-        token: "",
-        key: ""
-      }
+      submitLoading: false
     });
     // form data
     const form = reactive({
@@ -144,37 +144,7 @@ export default {
           allData.submitLoading = false;
         });
     };
-    /** 获取七牛云token */
-    const getQiniuToKen = () => {
-      let requestData = {
-        accesskey: "46xd_kvn0b2YwiZqCOpDc7wODFXtVaYEvYFTa4B_",
-        secretkey: "7N7o7yBHkouCmCPQFcI554Ly8S4vtjm0MKIsOuEP",
-        buckety: "jiahai"
-      };
-      QiniuToKen(requestData).then(res => {
-        allData.uploadKey.token = res.data.data.token;
-      });
-    };
-    /** 文件上传前 */
-    const beforeAvatarUpload = file => {
-      const isJPG = file.type === "image/jpeg";
-      const isPNG = file.type === "image/png";
-      const isLt5M = file.size / 1024 / 1024 < 5;
-      if (!isJPG && !isPNG) {
-        root.$message.error("上传图片只能是 JPG 或者 PNG 格式!");
-      }
-      if (!isLt5M) {
-        root.$message.error("上传头像图片大小不能超过 5MB!");
-      }
-      let suffix = file.name;
-      let key = encodeURI(`${suffix}`);
-      allData.uploadKey.key = key;
-      return (isJPG || isPNG) && isLt5M;
-    };
-    /** 文件上成功 */
-    const handleAvatarSuccess = (res, file) => {
-      form.imgUrl = `${root.$store.getters["common/qiniuUrl"]}${res.key}`;
-    };
+
     // onMounted
     onMounted(() => {
       // 获取分类
@@ -182,42 +152,16 @@ export default {
         allData.category = res;
       });
       getInfo();
-      getQiniuToKen();
     });
     return {
       // reactive
+      uploadImgConfig,
       allData,
       form,
       // methods
-      submitEdit,
-      beforeAvatarUpload,
-      handleAvatarSuccess
+      submitEdit
     };
   }
 };
 </script>
-<style lang="scss">
-.avatar-uploader .el-upload {
-  border: 1px dashed #d9d9d9;
-  border-radius: 6px;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-}
-.avatar-uploader .el-upload:hover {
-  border-color: #409eff;
-}
-.avatar-uploader-icon {
-  font-size: 28px;
-  color: #8c939d;
-  width: 278px;
-  height: 178px;
-  line-height: 178px;
-  text-align: center;
-}
-.avatar {
-  width: 278px;
-  height: 178px;
-  display: block;
-}
-</style>
+<style lang="scss" scoped></style>
