@@ -129,7 +129,7 @@
       >
       </el-table-column>
       <!-- <el-table-column prop="user" label="管理员" width="120"></el-table-column> -->
-      <el-table-column label="操作" width="220">
+      <el-table-column label="操作" width="320">
         <template slot-scope="scope">
           <el-button
             type="primary"
@@ -145,6 +145,13 @@
             :loading="allData.deleteBtnLoading"
             @click="deleteItem(scope.row.id)"
             >删除</el-button
+          >
+          <el-button
+            type="primary"
+            size="mini"
+            icon="el-icon-edit"
+            @click="detailed(scope.row)"
+            >编辑详情</el-button
           >
         </template>
       </el-table-column>
@@ -313,6 +320,31 @@ export default {
       allData.editRowId = id;
       allData.dialogEdit = true;
     };
+    /**
+     * 详情页
+     */
+    const detailed = data => {
+      root.$store.commit("infoDetailed/UPDATE_STATE_VALUE", {
+        id: {
+          value: data.id,
+          sessionKey: "infoId",
+          session: true
+        },
+        title: {
+          value: data.title,
+          sessionKey: "infoTitle",
+          session: true
+        }
+      });
+      // 跳转页面
+      root.$router.push({
+        name: "InfoDetailed",
+        params: {
+          id: data.id,
+          title: data.title
+        }
+      });
+    };
     /** 删除单条 */
     const deleteItem = id => {
       allData.deleteInfoId = [id];
@@ -369,6 +401,7 @@ export default {
       toCategory,
       toDate,
       editInfo,
+      detailed,
       deleteItem,
       deleteAll,
       handleSelectionChange,
