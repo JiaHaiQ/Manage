@@ -1,41 +1,56 @@
 <template>
-  <el-table :data="data.tableData" border style="width: 100%">
-    <!-- 多选 -->
-    <el-table-column
-      v-if="data.tableConfig.selection"
-      type="selection"
-      width="55"
-    >
-    </el-table-column>
-    <template v-for="item in data.tableConfig.tHead">
-      <!-- v-slot -->
+  <div>
+    <el-table :data="data.tableData" border style="width: 100%">
+      <!-- 多选 -->
       <el-table-column
-        :key="item.rowKey"
-        :prop="item.rowKey"
-        :label="item.label"
-        :width="item.width"
-        v-if="item.columnType === 'slot'"
+        v-if="data.tableConfig.selection"
+        type="selection"
+        width="55"
       >
-        <template slot-scope="scope">
-          <slot :name="item.slotName" :data="scope.row"></slot>
-        </template>
       </el-table-column>
-      <!-- 文本渲染 -->
-      <el-table-column
-        :key="item.rowKey"
-        :prop="item.rowKey"
-        :label="item.label"
-        :width="item.width"
-        v-else
-      >
-      </el-table-column
-    ></template>
-  </el-table>
+      <template v-for="item in data.tableConfig.tHead">
+        <!-- v-slot -->
+        <el-table-column
+          :key="item.rowKey"
+          :prop="item.rowKey"
+          :label="item.label"
+          :width="item.width"
+          v-if="item.columnType === 'slot'"
+        >
+          <template slot-scope="scope">
+            <slot :name="item.slotName" :data="scope.row"></slot>
+          </template>
+        </el-table-column>
+        <!-- 文本渲染 -->
+        <el-table-column
+          :key="item.rowKey"
+          :prop="item.rowKey"
+          :label="item.label"
+          :width="item.width"
+          v-else
+        >
+        </el-table-column
+      ></template>
+    </el-table>
+    <div class="black-space-30"></div>
+    <el-pagination
+      class="pull-right"
+      v-if="data.tableConfig.paginationShow"
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+      :current-page="pageData.currentPage"
+      :page-sizes="pageData.pageSizes"
+      :page-size="pageData.pageSize"
+      :layout="data.tableConfig.paginationLayout"
+      :total="pageData.total"
+      background
+    ></el-pagination>
+  </div>
 </template>
 <script>
-import { onBeforeMount, reactive } from "@vue/composition-api";
-import { requestUrl } from "api/requestUrl";
-import { LoadTableData } from "api/commonApi";
+import { onBeforeMount, reactive, watch } from "@vue/composition-api";
+import { loadTableDataFunc } from "./loadTableData";
+import { paginationHook } from "./paginationHook";
 export default {
   name: "tableComponents",
   props: {
@@ -45,6 +60,15 @@ export default {
     }
   },
   setup(props, { root }) {
+    //加载表数据
+    const { tableData, loadTableData } = loadTableDataFunc({ root });
+    // 分页
+    const {
+      pageData,
+      handleSizeChange,
+      handleCurrentChange,
+      totalCount
+    } = paginationHook();
     const data = reactive({
       // table配置
       tableConfig: {
@@ -53,7 +77,10 @@ export default {
         // 接口data
         requestData: {},
         // 表头
-        tHead: []
+        tHead: [],
+        // 分页
+        paginationLayout: "total, sizes, prev, pager, next, jumper",
+        paginationShow: true
       },
       // 表数据
       tableData: [
@@ -73,33 +100,45 @@ export default {
         }
       ]
     });
-    /** 接口请求 */
-    let loadData = () => {
-      let { requestData } = data.tableConfig;
-      requestData.url = requestUrl[requestData.url];
-      LoadTableData(requestData).then(res => {
-        let resData = res.data.data.data;
-        if (resData.length > 0) {
-          data.tableData = resData;
+    // 数据监听
+    watch(
+      [() => tableData.item, () => tableData.total],
+      ([tableData, total]) => {
+        data.tableData = tableData;
+        totalCount(total);
+      }
+    );
+    // 页码监听
+    watch(
+      [() => pageData.currentPage, () => pageData.pageSize],
+      ([currentPage, pageSize]) => {
+        let requestData = data.tableConfig.requestData;
+        if (requestData.data) {
+          requestData.data.pageNumber = currentPage;
+          requestData.data.pageSize = pageSize;
+          loadTableData(data.tableConfig.requestData);
         }
-      });
-    };
+      }
+    );
     /** 处理传入数据 */
-    let initPropsValue = () => {
+    const initPropsValue = () => {
       let configData = props.config;
       let keys = Object.keys(data.tableConfig);
       for (let key in configData) {
         if (keys.includes(key)) {
           data.tableConfig[key] = configData[key];
-          loadData();
         }
       }
     };
     onBeforeMount(() => {
       initPropsValue();
+      loadTableData(data.tableConfig.requestData);
     });
     return {
-      data
+      data,
+      pageData,
+      handleSizeChange,
+      handleCurrentChange
     };
   }
 };
