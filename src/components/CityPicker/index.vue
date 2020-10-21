@@ -123,3 +123,23 @@ export default {
 };
 </script>
 <style lang="scss" scoped></style>
+<!--
+说明：
+组件目录位置：src/components/CityPicker/index.vue;
+组件引用方式：import CityPicker from "@c/CityPicker";
+template：<CityPicker :cityPickerData.sync="data.cityPickerData" />
+参数（Object）配置：
+//配置
+cityPickerData: {
+  
+}
+v-if(需要显示的省份、城市、区县、街道)
+cityPickerLevel:{
+  province: false,
+  city: false,
+  area: false,
+  street: false
+}
+返回数据：
+
+-->

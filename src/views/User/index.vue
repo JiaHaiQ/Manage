@@ -29,16 +29,22 @@
           type="success"
           icon="el-icon-circle-plus-outline"
           size="small"
-           @click="data.dialogAdd = true"
+          @click="data.dialogAdd = true"
           >添加用户</el-button
         ></el-col
       >
     </el-row>
     <div class="black-space-30"></div>
     <!-- table组件 -->
-    <TableVue :config="data.configTable">
+    <TableVue ref="userTable" :config="data.configTable" :tableRow.sync="data.tableRow">
       <template v-slot:status="slotData">
-        <el-switch antive-color="#13c66" inactive-color="#ff4949"></el-switch>
+        <el-switch
+          v-model="slotData.data.status"
+          active-value="2"
+          inactive-value="1"
+          antive-color="#13c66"
+          inactive-color="#ff4949"
+        ></el-switch>
       </template>
       <template v-slot:operation="slotData">
         <el-button
@@ -56,40 +62,54 @@
           >删除</el-button
         >
       </template>
+      <template v-slot:tableFooterLeft>
+        <el-button
+          type="danger"
+          icon="el-icon-delete"
+          size="mini"
+          @click="deleteAll"
+          >批量删除</el-button
+        >
+      </template>
     </TableVue>
     <!-- 新增 -->
-    <DialogAdd
-      :flag.sync="data.dialogAdd"
-    />
+    <DialogAdd :flag.sync="data.dialogAdd" />
   </div>
 </template>
 <script>
 import { reactive } from "@vue/composition-api";
+import { UserDel } from "api/user";
+import { global } from "utils/global";
 import SelectVue from "@c/Select";
 import TableVue from "@c/Table";
 import DialogAdd from "./dialog/add";
 export default {
   name: "userIndex",
   components: { SelectVue, TableVue, DialogAdd },
-  setup(props, { root }) {
+  setup(props, { root, refs }) {
+    const { confirm } = global(); //MessageBox提示
     const data = reactive({
       // 新增
-      dialogAdd: true,
+      dialogAdd: false,
       // 下接菜单的数据
       configOption: {
         init: ["truename", "phone"]
       },
       selectData: {},
+      // table选择的数据
+      tableRow: {},
       //table配置
       configTable: {
+        tableLoading: true,
+        // height: 500,
         // 多选
         // selection: false,
         //表头
         tHead: [
-          { label: "邮箱", rowKey: "email", width: 200 },
-          { label: "姓名", rowKey: "name", width: 120 },
+          { label: "邮箱", rowKey: "username", width: 200 },
+          { label: "姓名", rowKey: "truename", width: 120 },
           { label: "号码", rowKey: "phone", width: 150 },
-          { label: "地区", rowKey: "address", width: 280 },
+          { label: "地区", rowKey: "region", width: 280 },
           { label: "角色", rowKey: "role" },
           {
             label: "禁启用",
@@ -114,13 +134,40 @@ export default {
       }
     });
     // methods
-    /** 删除 */
+    // 删除单条
     const deleteItem = params => {
-      console.log(params);
+      data.tableRow.idItem = [params.id];
+      confirm({
+        content: "确认删除当前用户信息，确认后将无法恢复！",
+        tip: "警告",
+        fn: deleteUser
+      });
+    };
+    // 批量删除
+    const deleteAll = () => {
+      let userId = data.tableRow.idItem;
+      if (!userId || userId.length === 0) {
+        root.$message.error("请勾选需要删除的用户！");
+        return false;
+      }
+      confirm({
+        content: "确认删除当前所选用户信息，确认后将无法恢复！",
+        tip: "警告",
+        fn: deleteUser
+      });
+    };
+    /** 删除用户 */
+    const deleteUser = () => {
+      UserDel({ id: data.tableRow.idItem }).then(res => {
+        root.$message.success(res.data.message);
+        refs.userTable.refreshData()
+      });
     };
     return {
       data,
-      deleteItem
+      deleteItem,
+      deleteAll,
+      deleteUser
     };
   }
 };

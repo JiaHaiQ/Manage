@@ -6,50 +6,82 @@
     @opened="openDialogAdd"
     @close="closeDialogAdd"
   >
-    <el-form :model="data.form" ref="addForm">
+    <el-form :model="data.form" :rules="data.rules" ref="addForm">
       <el-form-item
         label="用户名："
         :label-width="data.formLabelWidth"
-        prop="categoryId"
+        prop="username"
       >
-        <el-input placeholder="请输入用户名"></el-input>
+        <el-input
+          v-model="data.form.username"
+          placeholder="请输入用户名"
+        ></el-input>
       </el-form-item>
+
+      <el-form-item
+        label="密码："
+        :label-width="data.formLabelWidth"
+        prop="password"
+      >
+        <el-input
+          type="password"
+          v-model="data.form.password"
+          placeholder="请输入6~20数字+字母"
+        ></el-input>
+      </el-form-item>
+
       <el-form-item
         label="姓名："
         :label-width="data.formLabelWidth"
-        prop="categoryId"
+        prop="truename"
       >
-        <el-input placeholder="请输入姓名"></el-input>
+        <el-input
+          v-model="data.form.truename"
+          placeholder="请输入姓名"
+        ></el-input>
       </el-form-item>
+
       <el-form-item
         label="手机号："
         :label-width="data.formLabelWidth"
-        prop="categoryId"
+        prop="phone"
       >
-        <el-input placeholder="请输入手机号"></el-input>
+        <el-input
+          v-model.number="data.form.phone"
+          placeholder="请输入手机号"
+        ></el-input>
       </el-form-item>
 
       <el-form-item
         label="地区："
         :label-width="data.formLabelWidth"
-        prop="categoryId"
+        prop="region"
       >
-        <CityPicker />
+        <CityPicker :cityPickerData.sync="data.cityPickerData" />
       </el-form-item>
 
       <el-form-item
         label="禁启用："
         :label-width="data.formLabelWidth"
-        prop="categoryId"
+        prop="status"
       >
-        <el-input></el-input>
+        <el-radio v-model="data.form.status" label="1">禁用</el-radio>
+        <el-radio v-model="data.form.status" label="2">启用</el-radio>
       </el-form-item>
+
       <el-form-item
-        label="用户角色："
+        label="角色："
         :label-width="data.formLabelWidth"
-        prop="categoryId"
+        prop="role"
       >
-        <el-input></el-input>
+        <el-checkbox-group v-model="data.form.role">
+          <el-checkbox
+            v-for="item in data.roleItem"
+            :key="item.role"
+            :label="item.role"
+            >{{ item.name }}</el-checkbox
+          >
+        </el-checkbox-group>
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
@@ -63,7 +95,7 @@
         type="success"
         icon="el-icon-circle-check"
         :loading="data.submitLoading"
-        @click="submitAdd"
+        @click="submitAdd('addForm')"
         >确 定</el-button
       >
     </div>
@@ -71,8 +103,10 @@
 </template>
 <script>
 import { reactive, ref, watchEffect } from "@vue/composition-api";
-import { AddInfo } from "api/info";
-// 组件
+import { GetRole, UserAdd } from "api/user";
+import { stripscript, validateEmail, validatePass } from "utils/validate";
+import sha1 from "js-sha1";
+// 地图组件
 import CityPicker from "@c/CityPicker";
 export default {
   name: "dialogAdd",
@@ -81,64 +115,117 @@ export default {
     flag: {
       type: Boolean,
       default: false
-    },
-    category: {
-      type: Array,
-      default: () => []
     }
   },
   setup(props, { root, emit, refs }) {
+    // 验证用户名
+    let validateUsername = (rule, value, callback) => {
+      if (value === "") {
+        callback(new Error("请输入用户名"));
+      } else if (validateEmail(value)) {
+        callback(new Error("用户名格式有误"));
+      } else {
+        callback();
+      }
+    };
+    // 验证密码
+    let validatePassword = (rule, value, callback) => {
+      if (data.form.id && !value) {
+        callback();
+      }
+      if ((data.form.id && value) || !data.form.id) {
+        if (value) {
+          data.form.password = stripscript(value);
+          value = data.form.password;
+        }
+        if (value === "") {
+          callback(new Error("请输入密码"));
+        } else if (validatePass(value)) {
+          callback(new Error("密码为6至20位数字+字母"));
+        } else {
+          callback();
+        }
+      }
+    };
     // data
     const data = reactive({
       dialogAddFlag: false,
       submitLoading: false,
       formLabelWidth: "90px",
-      categoryOptions: [],
+      cityPickerData: {},
       form: {
-        categoryId: "",
-        title: "",
-        content: ""
-      }
+        username: "",
+        password: "",
+        truename: "",
+        phone: "",
+        region: "",
+        status: "1",
+        role: [],
+        btnPerm: ""
+      },
+      // 规则
+      rules: reactive({
+        username: [
+          { required: true, validator: validateUsername, trigger: "blur" }
+        ],
+        password: [
+          { required: true, validator: validatePassword, trigger: "blur" }
+        ],
+        role: [{ required: true, message: "请选择角色", trigger: "change" }]
+      }),
+      // 角色
+      roleItem: []
     });
     // watch
     watchEffect(() => (data.dialogAddFlag = props.flag));
     // methods
     /** 打开弹窗 */
     const openDialogAdd = () => {
-      data.categoryOptions = props.category;
+      getRole();
     };
     /** 关闭弹窗 */
     const closeDialogAdd = () => {
       data.dialogAddFlag = false;
-      // 重置form
-      refs.addForm.resetFields();
+      resetForm();
       emit("update:flag", false);
     };
-    /** 提交添加 */
-    const submitAdd = () => {
-      if (!data.form.categoryId) {
-        root.$message.error("请选择类型！");
-        return false;
-      }
-      if (!data.form.title) {
-        root.$message.error("请输入标题！");
-        return false;
-      }
-      if (!data.form.content) {
-        root.$message.error("请输入内容！");
-        return false;
-      }
-      data.submitLoading = true;
-      AddInfo(data.form)
-        .then(res => {
-          root.$message.success(res.data.message);
-          data.submitLoading = false;
-          emit("getListEmit");
-          closeDialogAdd();
-        })
-        .catch(error => {
-          data.submitLoading = false;
+    /* 重置form */
+    const resetForm = () => {
+      data.cityPickerData = {};
+      refs.addForm.resetFields();
+    };
+    /** 请求角色 */
+    const getRole = () => {
+      if (data.roleItem.length === 0) {
+        GetRole().then(res => {
+          data.roleItem = res.data.data;
         });
+      }
+      // if (data.btnPerm.length === 0) {
+      //   GetPermButton().then(res => {
+      //     data.btnPerm = res.data.data;
+      //   });
+      // }
+    };
+    /** 提交添加 */
+    const submitAdd = formName => {
+      refs[formName].validate(valid => {
+        // 表单验证通过
+        if (valid) {
+          let requestData = Object.assign({}, data.form);
+          requestData.role = requestData.role.join();
+          requestData.region = JSON.stringify(data.cityPickerData);
+          requestData.password = sha1(requestData.password);
+          data.submitLoading = true;
+          UserAdd(requestData).then(res => {
+            data.submitLoading = false;
+            root.$message.success(res.data.message);
+            resetForm();
+          });
+        } else {
+          return false;
+        }
+      });
     };
     return {
       // reactive

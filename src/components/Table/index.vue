@@ -1,6 +1,16 @@
 <template>
   <div>
-    <el-table :data="data.tableData" border style="width: 100%">
+    <el-table
+      :height="data.tableConfig.height"
+      v-loading="data.tableConfig.tableLoading"
+      element-loading-text="拼命加载中"
+      element-loading-spinner="el-icon-loading"
+      element-loading-background="rgba(0, 0, 0, .5)"
+      border
+      style="width: 100%"
+      :data="data.tableData"
+      @selection-change="thatSelectCheckbox"
+    >
       <!-- 多选 -->
       <el-table-column
         v-if="data.tableConfig.selection"
@@ -32,19 +42,27 @@
         </el-table-column
       ></template>
     </el-table>
-    <div class="black-space-30"></div>
-    <el-pagination
-      class="pull-right"
-      v-if="data.tableConfig.paginationShow"
-      @size-change="handleSizeChange"
-      @current-change="handleCurrentChange"
-      :current-page="pageData.currentPage"
-      :page-sizes="pageData.pageSizes"
-      :page-size="pageData.pageSize"
-      :layout="data.tableConfig.paginationLayout"
-      :total="pageData.total"
-      background
-    ></el-pagination>
+    <div class="table-footer">
+      <el-row>
+        <el-col :span="4">
+          <slot name="tableFooterLeft"></slot>
+        </el-col>
+        <el-col :span="20">
+          <el-pagination
+            class="pull-right"
+            v-if="data.tableConfig.paginationShow"
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page="pageData.currentPage"
+            :page-sizes="pageData.pageSizes"
+            :page-size="pageData.pageSize"
+            :layout="data.tableConfig.paginationLayout"
+            :total="pageData.total"
+            background
+          ></el-pagination>
+        </el-col>
+      </el-row>
+    </div>
   </div>
 </template>
 <script>
@@ -57,9 +75,13 @@ export default {
     config: {
       type: Object,
       default: () => {}
+    },
+    tableRow: {
+      type: Object,
+      default: () => {}
     }
   },
-  setup(props, { root }) {
+  setup(props, { root, emit }) {
     //加载表数据
     const { tableData, loadTableData } = loadTableDataFunc({ root });
     // 分页
@@ -72,6 +94,10 @@ export default {
     const data = reactive({
       // table配置
       tableConfig: {
+        // Loading
+        tableLoading: false,
+        // height
+        height: 460,
         // 多选
         selection: true,
         // 接口data
@@ -83,27 +109,15 @@ export default {
         paginationShow: true
       },
       // 表数据
-      tableData: [
-        {
-          email: "2016-05-02",
-          name: "王虎",
-          phone: "12345678910",
-          address: "上海市普陀区金沙江路 1518 弄",
-          role: "超级管理员"
-        },
-        {
-          email: "201ss2222-02",
-          name: "小虎",
-          phone: "12345678910",
-          address: "上海市普陀区金沙江路 1518 弄",
-          role: "超级管理员"
-        }
-      ]
+      tableData: []
     });
     // 数据监听
     watch(
       [() => tableData.item, () => tableData.total],
       ([tableData, total]) => {
+        if (tableData) {
+          data.tableConfig.tableLoading = false;
+        }
         data.tableData = tableData;
         totalCount(total);
       }
@@ -130,6 +144,17 @@ export default {
         }
       }
     };
+    // 勾选checkbox时触发
+    const thatSelectCheckbox = val => {
+      let rowData = {
+        idItem: val.map(item => item.id)
+      };
+      emit("update:tableRow", rowData);
+    };
+    /** 刷新数据 */
+    const refreshData = () => {
+      loadTableData(data.tableConfig.requestData);
+    };
     onBeforeMount(() => {
       initPropsValue();
       loadTableData(data.tableConfig.requestData);
@@ -138,12 +163,18 @@ export default {
       data,
       pageData,
       handleSizeChange,
-      handleCurrentChange
+      handleCurrentChange,
+      thatSelectCheckbox,
+      refreshData
     };
   }
 };
 </script>
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.table-footer {
+  padding: 15px 0;
+}
+</style>
 <!--
 说明：
 组件目录位置：src/components/Table/index.vue;
@@ -153,6 +184,10 @@ template：<TableVue :config="data.configTable" />
 参数（Object）配置：
 //table配置
 configTable: {
+  // 表loading状态
+  tableLoading: true,
+  // 表高
+  height: 200,
   // 多选
   // selection: false,
   //表头array

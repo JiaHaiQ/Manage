@@ -1,6 +1,12 @@
-import { reactive } from "@vue/composition-api";
-import { requestUrl } from "api/requestUrl";
-import { LoadTableData } from "api/commonApi";
+import {
+  reactive
+} from "@vue/composition-api";
+import {
+  requestUrl
+} from "api/requestUrl";
+import {
+  LoadTableData
+} from "api/commonApi";
 /** table逻辑组件 */
 export function loadTableDataFunc() {
   const tableData = reactive({
@@ -15,14 +21,13 @@ export function loadTableDataFunc() {
     // 获取表数据
     LoadTableData(requestData).then(res => {
       let resData = res.data.data.data;
-      if (resData.length > 0) {
-        tableData.item = resData;
-        tableData.total = resData.length === 0 ? 0 : res.data.data.total
-      }
+      tableData.item = resData;
+      tableData.total = resData.length === 0 ? 0 : res.data.data.total
     });
   }
   return {
-    tableData, loadTableData
+    tableData,
+    loadTableData
   }
 }
 
