@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    title="新增"
+    :title="data.dialogTitle"
     width="760px"
     :visible.sync="data.dialogAddFlag"
     @opened="openDialogAdd"
@@ -115,6 +115,10 @@ export default {
     flag: {
       type: Boolean,
       default: false
+    },
+    editData: {
+      type: Object,
+      default: () => {}
     }
   },
   setup(props, { root, emit, refs }) {
@@ -151,6 +155,7 @@ export default {
     const data = reactive({
       dialogAddFlag: false,
       submitLoading: false,
+      dialogTitle: "",
       formLabelWidth: "90px",
       cityPickerData: {},
       form: {
@@ -182,6 +187,22 @@ export default {
     /** 打开弹窗 */
     const openDialogAdd = () => {
       getRole();
+      // 初始值处理
+      let editData = props.editData;
+      if (editData.id) {
+        // 编辑
+        data.dialogTitle = "编辑"
+        editData.role = editData.role ? editData.role.split(",") : []; // 数组
+        editData.btnPerm = editData.btnPerm ? editData.btnPerm.split(",") : []; // 数组
+        // 循环JSON对象
+        for (let key in editData) {
+          data.form[key] = editData[key];
+        }
+      } else {
+        // 添加
+        data.dialogTitle = "新增"
+        data.form.id && delete data.form.id;
+      }
     };
     /** 关闭弹窗 */
     const closeDialogAdd = () => {
@@ -189,7 +210,7 @@ export default {
       resetForm();
       emit("update:flag", false);
     };
-    /* 重置form */
+    /** 重置form */
     const resetForm = () => {
       data.cityPickerData = {};
       refs.addForm.resetFields();
@@ -220,7 +241,8 @@ export default {
           UserAdd(requestData).then(res => {
             data.submitLoading = false;
             root.$message.success(res.data.message);
-            resetForm();
+            emit("updateTableData");
+            closeDialogAdd();
           });
         } else {
           return false;

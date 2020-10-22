@@ -36,9 +36,16 @@
     </el-row>
     <div class="black-space-30"></div>
     <!-- table组件 -->
-    <TableVue ref="userTable" :config="data.configTable" :tableRow.sync="data.tableRow">
+    <TableVue
+      ref="userTable"
+      :config="data.configTable"
+      :tableRow.sync="data.tableRow"
+    >
+      <!-- 插槽 -->
       <template v-slot:status="slotData">
         <el-switch
+          :disabled="data.updateUserStatusDisabled"
+          @change="handlerSwitch(slotData.data)"
           v-model="slotData.data.status"
           active-value="2"
           inactive-value="1"
@@ -51,7 +58,7 @@
           type="primary"
           icon="el-icon-edit"
           size="mini"
-          @click="deleteItem(slotData.data)"
+          @click="editItem(slotData.data)"
           >编辑</el-button
         >
         <el-button
@@ -73,24 +80,29 @@
       </template>
     </TableVue>
     <!-- 新增 -->
-    <DialogAdd :flag.sync="data.dialogAdd" />
+    <UserDialog :flag.sync="data.dialogAdd" :editData="data.editData" @updateTableData="updateTableData" />
   </div>
 </template>
 <script>
 import { reactive } from "@vue/composition-api";
-import { UserDel } from "api/user";
+import { UserDel, UserActives } from "api/user";
 import { global } from "utils/global";
 import SelectVue from "@c/Select";
 import TableVue from "@c/Table";
-import DialogAdd from "./dialog/add";
+import UserDialog from "./dialog/userDialog";
 export default {
   name: "userIndex",
-  components: { SelectVue, TableVue, DialogAdd },
+  components: { SelectVue, TableVue, UserDialog },
   setup(props, { root, refs }) {
     const { confirm } = global(); //MessageBox提示
     const data = reactive({
       // 新增
       dialogAdd: false,
+      // 编辑
+      dialogEdit: false,
+      editData: {},
+      // disabled
+      updateUserStatusDisabled: false,
       // 下接菜单的数据
       configOption: {
         init: ["truename", "phone"]
@@ -160,14 +172,44 @@ export default {
     const deleteUser = () => {
       UserDel({ id: data.tableRow.idItem }).then(res => {
         root.$message.success(res.data.message);
-        refs.userTable.refreshData()
+        updateTableData();
       });
+    };
+    /** 更新表数据 */
+    const updateTableData = () => {
+      refs.userTable.refreshData();
+    };
+    /**
+     * 修改用户禁启用状态
+     */
+    const handlerSwitch = params => {
+      if (data.updateUserStatusDisabled) {
+        return false;
+      }
+      data.updateUserStatusDisabled = true;
+      UserActives({ id: params.id, status: params.status })
+        .then(res => {
+          root.$message.success(res.data.message);
+          data.updateUserStatusDisabled = false;
+        })
+        .catch(error => {
+          data.updateUserStatusDisabled = false;
+        });
+    };
+    /** 编辑 */
+    const editItem = params => {
+      data.dialogAdd = true;
+      // 子组件赋值
+      data.editData = Object.assign({}, params);
     };
     return {
       data,
       deleteItem,
       deleteAll,
-      deleteUser
+      deleteUser,
+      updateTableData,
+      handlerSwitch,
+      editItem
     };
   }
 };

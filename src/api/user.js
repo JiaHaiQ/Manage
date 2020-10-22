@@ -35,10 +35,23 @@ export function UserAdd(data = {}) {
 id: 用户ID（array）
 }
  */
-export function UserDel(data){
+export function UserDel(data) {
     return service.request({
         method: "post",
         url: "/user/delete/",
+        data
+    })
+}
+/**
+ * 用户禁启用{
+id: 用户ID（number）
+status: 状态（string）1：禁用，2：启用
+}
+ */
+export function UserActives(data) {
+    return service.request({
+        method: "post",
+        url: "/user/actives/",
         data
     })
 }
