@@ -101,10 +101,10 @@ import { GetSms, Register } from "api/login";
 import sha1 from "js-sha1";
 import {
   stripscript,
-  validataEmail,
-  validataPass,
+  validateEmail,
+  validatePass,
   validateVCode
-} from "utils/validata";
+} from "utils/validate";
 export default {
   name: "login",
   setup(props, { refs, root }) {
@@ -113,7 +113,7 @@ export default {
     let validateUsername = (rule, value, callback) => {
       if (value === "") {
         callback(new Error("请输入用户名"));
-      } else if (validataEmail(value)) {
+      } else if (validateEmail(value)) {
         callback(new Error("用户名格式不正确"));
       } else {
         callback();
@@ -126,7 +126,7 @@ export default {
       value = ruleForm.password;
       if (value === "") {
         callback(new Error("请输入密码"));
-      } else if (validataPass(value)) {
+      } else if (validatePass(value)) {
         callback(new Error("密码为6至20位的数字加字母"));
       } else {
         callback();
@@ -217,7 +217,7 @@ export default {
         root.$message.error("邮箱不能为空");
         return false;
       }
-      if (validataEmail(ruleForm.username)) {
+      if (validateEmail(ruleForm.username)) {
         root.$message.error("邮箱格式有误，请重新输入");
         return false;
       }
