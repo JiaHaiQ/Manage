@@ -70,7 +70,7 @@
       </el-form-item>
 
       <el-form-item
-        label="角色："
+        label="系统："
         :label-width="data.formLabelWidth"
         prop="role"
       >
@@ -100,7 +100,7 @@
 </template>
 <script>
 import { reactive, ref, watchEffect } from "@vue/composition-api";
-import { GetRole, UserAdd, UserEdit } from "api/user";
+import { GetSystem, UserAdd, UserEdit } from "api/user";
 import { stripscript, validateEmail, validatePass } from "utils/validate";
 import sha1 from "js-sha1";
 // 地图组件
@@ -184,7 +184,7 @@ export default {
     // methods
     /** 打开弹窗 */
     const openDialogAdd = () => {
-      getRole();
+      getSystem();
       // 初始值处理
       let editData = props.editData;
       if (editData.id) {
@@ -214,17 +214,12 @@ export default {
       refs.addForm.resetFields();
     };
     /** 请求角色 */
-    const getRole = () => {
+    const getSystem = () => {
       if (data.roleItem.length === 0) {
-        GetRole().then(res => {
+        GetSystem().then(res => {
           data.roleItem = res.data.data;
         });
       }
-      // if (data.btnPerm.length === 0) {
-      //   GetPermButton().then(res => {
-      //     data.btnPerm = res.data.data;
-      //   });
-      // }
     };
     /** 添加 */
     const userAdd = requestData => {
@@ -261,7 +256,6 @@ export default {
           let requestData = Object.assign({}, data.form);
           requestData.role = requestData.role.join();
           requestData.region = JSON.stringify(data.cityPickerData);
-          requestData.password = sha1(requestData.password);
           data.submitLoading = true;
           if (requestData.id) {
             // 编辑
