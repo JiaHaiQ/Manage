@@ -9,7 +9,16 @@ export function GetRole(data = {}) {
         data
     })
 }
-
+/**
+ * 系统列表
+ */
+export function GetSystem(data = {}){
+    return service.request({
+        method: "post",
+        url: "/system/",
+        data
+    })
+}
 /**
  * 添加用户
 {
