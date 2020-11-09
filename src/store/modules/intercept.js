@@ -24,6 +24,7 @@ const mutations = {
 }
 
 const actions = {
+    // 获取角色
     getRoles({ commit }, repuestData) {
         return new Promise((resolve, reject) => {
             getUserRole().then(res => {
